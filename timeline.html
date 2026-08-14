@@ -75,10 +75,13 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold text-slate-800 tracking-tight">Timeline Kerja</h1>
-                    <p class="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Manajemen Proyek Modern</p>
+                    <p class="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Manajemen Proyek Cloud</p>
                 </div>
             </div>
             <div class="flex items-center gap-4">
+                <div id="sync-status" class="hidden sm:flex items-center gap-2 text-xs font-medium text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200/60">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></i></span> Sinkron Cloud Aktif
+                </div>
                 <button onclick="openTeamModal()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 shadow-soft hover:shadow">
                     <i class="fa-solid fa-users text-xs"></i> Kelola Tim
                 </button>
@@ -91,7 +94,6 @@
 
     <main class="flex-1 overflow-hidden flex flex-col max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 gap-6">
         
-        <!-- Dashboard Info Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
             <div class="bg-surface p-5 rounded-2xl shadow-soft border border-slate-100/50 flex items-center gap-5 transition-transform hover:-translate-y-1 duration-300">
                 <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100/50 text-blue-600 flex items-center justify-center text-2xl shadow-inner-soft border border-blue-100">
@@ -126,7 +128,7 @@
             <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-white/50 backdrop-blur-sm">
                 <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2.5">
                     <span class="w-2 h-6 rounded-full bg-primary-500 inline-block"></span>
-                    Alur Kerja Visual
+                    Alur Kerja Visual (Sinkron Real-Time)
                 </h2>
                 <div class="flex gap-2" id="month-selectors"></div>
             </div>
@@ -154,6 +156,7 @@
         </div>
     </main>
 
+    <!-- Task Modal -->
     <div id="taskModal" class="fixed inset-0 z-50 hidden">
         <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onclick="closeTaskModal()"></div>
         <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
@@ -220,6 +223,7 @@
         </div>
     </div>
 
+    <!-- Task Detail Modal -->
     <div id="detailModal" class="fixed inset-0 z-50 hidden">
         <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onclick="closeDetailModal()"></div>
         <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
@@ -277,6 +281,7 @@
         </div>
     </div>
 
+    <!-- Team Modal -->
     <div id="teamModal" class="fixed inset-0 z-50 hidden">
         <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onclick="closeTeamModal()"></div>
         <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
@@ -308,23 +313,37 @@
         </div>
     </div>
 
-    <script>
-        // Load stored data or fall back to default arrays
-        let teamMembers = JSON.parse(localStorage.getItem('timeline_team')) || [
-            { id: 't1', name: 'Tim Riset', role: 'Divisi Riset' },
-            { id: 't2', name: 'Manajer Proyek', role: 'Manajemen' },
-            { id: 't3', name: 'Direksi', role: 'Eksekutif' },
-            { id: 't4', name: 'Tim Desain', role: 'UI/UX' },
-            { id: 't5', name: 'Tim Dev', role: 'Engineering' }
-        ];
+    <!-- Custom Notification / Confirmation Modal (No alert/confirm used) -->
+    <div id="customModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+            <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-sm pointer-events-auto p-6 text-center border border-slate-100">
+                <div id="customModalIcon" class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto mb-4 text-xl">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h4 class="text-lg font-bold text-slate-800 mb-2" id="customModalTitle">Konfirmasi</h4>
+                <p class="text-sm text-slate-500 mb-6" id="customModalMessage">Pesan konfirmasi...</p>
+                <div class="flex gap-3" id="customModalActions">
+                    <button id="customModalBtnCancel" onclick="closeCustomModal()" class="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">Batal</button>
+                    <button id="customModalBtnOk" class="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-slate-800 transition-colors">Ya</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        let tasks = JSON.parse(localStorage.getItem('timeline_tasks')) || [
-            { id: '1', name: 'Riset Pasar & Analisis Kompetitor', start: '2026-08-01', end: '2026-08-07', assignee: 'Tim Riset', isMilestone: false, color: 'bg-indigo-500' },
-            { id: '2', name: 'Penyusunan Proposal Proyek', start: '2026-08-08', end: '2026-08-12', assignee: 'Manajer Proyek', isMilestone: false, color: 'bg-blue-500' },
-            { id: '3', name: 'Persetujuan Proposal (Kick-off)', start: '2026-08-13', end: '2026-08-13', assignee: 'Direksi', isMilestone: true, color: 'bg-amber-500' },
-            { id: '4', name: 'Desain Prototipe UI/UX Utama', start: '2026-08-14', end: '2026-08-25', assignee: 'Tim Desain', isMilestone: false, color: 'bg-primary-500' },
-            { id: '5', name: 'Pengembangan Frontend (Sprint 1)', start: '2026-08-20', end: '2026-09-10', assignee: 'Tim Dev', isMilestone: false, color: 'bg-violet-500' }
-        ];
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, setDoc, doc, updateDoc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-timeline-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : undefined;
+
+        let db = null;
+        let auth = null;
+        let tasks = [];
+        let teamMembers = [];
 
         const colors = [
             'bg-blue-500', 'bg-indigo-500', 'bg-violet-500', 
@@ -336,20 +355,136 @@
         const detailModal = document.getElementById('detailModal');
         const teamModal = document.getElementById('teamModal');
         const form = document.getElementById('taskForm');
-        
-        function saveToStorage() {
-            localStorage.setItem('timeline_tasks', JSON.stringify(tasks));
-            localStorage.setItem('timeline_team', JSON.stringify(teamMembers));
+
+        // Custom modal helper (No browser alert/confirm)
+        window.showCustomModal = function(title, message, isConfirm = false, onOk = null, iconClass = "fa-triangle-exclamation", iconBg = "bg-amber-100 text-amber-600") {
+            const m = document.getElementById('customModal');
+            document.getElementById('customModalTitle').textContent = title;
+            document.getElementById('customModalMessage').textContent = message;
+            const iconEl = document.getElementById('customModalIcon');
+            iconEl.className = `w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl ${iconBg}`;
+            iconEl.innerHTML = `<i class="fa-solid ${iconClass}"></i>`;
+            
+            const cancelBtn = document.getElementById('customModalBtnCancel');
+            const okBtn = document.getElementById('customModalBtnOk');
+            
+            if (isConfirm) {
+                cancelBtn.classList.remove('hidden');
+                okBtn.onclick = () => {
+                    closeCustomModal();
+                    if (onOk) onOk();
+                };
+            } else {
+                cancelBtn.classList.add('hidden');
+                okBtn.onclick = () => closeCustomModal();
+            }
+            m.classList.remove('hidden');
+        };
+
+        window.closeCustomModal = function() {
+            document.getElementById('customModal').classList.add('hidden');
+        };
+
+        async function initFirebase() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                const user = auth.currentUser;
+                if (!user) return;
+
+                setupRealtimeListeners();
+            } catch (e) {
+                console.warn("Cloud connection fallback to local state:", e);
+                loadFallbackData();
+            }
+        }
+
+        function loadFallbackData() {
+            teamMembers = JSON.parse(localStorage.getItem('timeline_team')) || [
+                { id: 't1', name: 'Tim Riset', role: 'Divisi Riset' },
+                { id: 't2', name: 'Manajer Proyek', role: 'Manajemen' },
+                { id: 't3', name: 'Direksi', role: 'Eksekutif' },
+                { id: 't4', name: 'Tim Desain', role: 'UI/UX' },
+                { id: 't5', name: 'Tim Dev', role: 'Engineering' }
+            ];
+
+            tasks = JSON.parse(localStorage.getItem('timeline_tasks')) || [
+                { id: '1', name: 'Riset Pasar & Analisis Kompetitor', start: '2026-08-01', end: '2026-08-07', assignee: 'Tim Riset', isMilestone: false, color: 'bg-indigo-500' },
+                { id: '2', name: 'Penyusunan Proposal Proyek', start: '2026-08-08', end: '2026-08-12', assignee: 'Manajer Proyek', isMilestone: false, color: 'bg-blue-500' },
+                { id: '3', name: 'Persetujuan Proposal (Kick-off)', start: '2026-08-13', end: '2026-08-13', assignee: 'Direksi', isMilestone: true, color: 'bg-amber-500' },
+                { id: '4', name: 'Desain Prototipe UI/UX Utama', start: '2026-08-14', end: '2026-08-25', assignee: 'Tim Desain', isMilestone: false, color: 'bg-primary-500' },
+                { id: '5', name: 'Pengembangan Frontend (Sprint 1)', start: '2026-08-20', end: '2026-09-10', assignee: 'Tim Dev', isMilestone: false, color: 'bg-violet-500' }
+            ];
+
+            renderAll();
+        }
+
+        function setupRealtimeListeners() {
+            if (!db) return;
+
+            // Team collection listener
+            const teamCol = collection(db, 'artifacts', appId, 'public', 'data', 'team');
+            onSnapshot(teamCol, (snapshot) => {
+                teamMembers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                if (teamMembers.length === 0) {
+                    // Seed initial team if empty
+                    const defaults = [
+                        { name: 'Tim Riset', role: 'Divisi Riset' },
+                        { name: 'Manajer Proyek', role: 'Manajemen' },
+                        { name: 'Direksi', role: 'Eksekutif' },
+                        { name: 'Tim Desain', role: 'UI/UX' },
+                        { name: 'Tim Dev', role: 'Engineering' }
+                    ];
+                    defaults.forEach(d => addDoc(teamCol, d));
+                    return;
+                }
+                renderAll();
+            }, (error) => {
+                console.error("Team sync error:", error);
+            });
+
+            // Tasks collection listener
+            const tasksCol = collection(db, 'artifacts', appId, 'public', 'data', 'tasks');
+            onSnapshot(tasksCol, (snapshot) => {
+                tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                if (tasks.length === 0 && snapshot.metadata.fromCache === false) {
+                    // Seed initial tasks if empty
+                    const defaultTasks = [
+                        { name: 'Riset Pasar & Analisis Kompetitor', start: '2026-08-01', end: '2026-08-07', assignee: 'Tim Riset', isMilestone: false, color: 'bg-indigo-500' },
+                        { name: 'Penyusunan Proposal Proyek', start: '2026-08-08', end: '2026-08-12', assignee: 'Manajer Proyek', isMilestone: false, color: 'bg-blue-500' },
+                        { name: 'Persetujuan Proposal (Kick-off)', start: '2026-08-13', end: '2026-08-13', assignee: 'Direksi', isMilestone: true, color: 'bg-amber-500' },
+                        { name: 'Desain Prototipe UI/UX Utama', start: '2026-08-14', end: '2026-08-25', assignee: 'Tim Desain', isMilestone: false, color: 'bg-primary-500' },
+                        { name: 'Pengembangan Frontend (Sprint 1)', start: '2026-08-20', end: '2026-09-10', assignee: 'Tim Dev', isMilestone: false, color: 'bg-violet-500' }
+                    ];
+                    defaultTasks.forEach(t => addDoc(tasksCol, t));
+                    return;
+                }
+                renderAll();
+            }, (error) => {
+                console.error("Tasks sync error:", error);
+            });
+        }
+
+        function renderAll() {
+            renderTimeline();
+            updateStats();
+            populateAssigneeDropdown();
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            renderTimeline();
-            updateStats();
+            initFirebase();
             setupFormValidation();
-            populateAssigneeDropdown();
         });
 
-        function populateAssigneeDropdown() {
+        window.populateAssigneeDropdown = function() {
             const select = document.getElementById('taskAssignee');
             if (!select) return;
             select.innerHTML = '';
@@ -359,18 +494,18 @@
                 option.textContent = member.name;
                 select.appendChild(option);
             });
-        }
+        };
 
-        function openTeamModal() {
+        window.openTeamModal = function() {
             renderTeamList();
             teamModal?.classList.remove('hidden');
-        }
+        };
 
-        function closeTeamModal() {
+        window.closeTeamModal = function() {
             teamModal?.classList.add('hidden');
-        }
+        };
 
-        function renderTeamList() {
+        window.renderTeamList = function() {
             const container = document.getElementById('teamListContainer');
             if (!container) return;
             container.innerHTML = '';
@@ -396,34 +531,33 @@
                             <p class="text-[11px] text-slate-400 px-1">Tekan enter/pindah untuk menyimpan</p>
                         </div>
                     </div>
-                    <button onclick="deleteTeamMember('${member.id}')" class="w-8 h-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors flex items-center justify-center shrink-0" title="Hapus Anggota">
+                    <button onclick="deleteTeamMember('${member.id}', '${member.name}')" class="w-8 h-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors flex items-center justify-center shrink-0" title="Hapus Anggota">
                         <i class="fa-regular fa-trash-can text-sm"></i>
                     </button>
                 `;
                 container.appendChild(item);
             });
-        }
+        };
 
-        function updateTeamMemberName(id, newName) {
+        window.updateTeamMemberName = async function(id, newName) {
             newName = newName.trim();
             if (!newName) return;
             const member = teamMembers.find(m => m.id === id);
-            if (member) {
+            if (member && member.name !== newName) {
                 const oldName = member.name;
                 member.name = newName;
-                tasks.forEach(t => {
-                    if (t.assignee === oldName) {
-                        t.assignee = newName;
-                    }
-                });
-                saveToStorage();
-                populateAssigneeDropdown();
-                renderTimeline();
-                updateStats();
+                if (db) {
+                    try {
+                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'team', id), { name: newName });
+                    } catch(e) { console.error(e); }
+                } else {
+                    localStorage.setItem('timeline_team', JSON.stringify(teamMembers));
+                }
+                renderAll();
             }
-        }
+        };
 
-        function addTeamMember(e) {
+        window.addTeamMember = async function(e) {
             e.preventDefault();
             const input = document.getElementById('newMemberName');
             const name = input?.value.trim();
@@ -431,36 +565,44 @@
             if (!name) return;
 
             if (teamMembers.some(m => m.name.toLowerCase() === name.toLowerCase())) {
-                alert('Anggota dengan nama tersebut sudah ada.');
+                showCustomModal('Perhatian', 'Anggota dengan nama tersebut sudah ada dalam tim.', false, null, 'fa-circle-exclamation', 'bg-blue-100 text-blue-600');
                 return;
             }
 
-            const newId = 't_' + Date.now();
-            teamMembers.push({ id: newId, name: name, role: 'Anggota' });
+            const newMember = { name: name, role: 'Anggota' };
             if (input) input.value = '';
             
-            saveToStorage();
+            if (db) {
+                try {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'team'), newMember);
+                } catch(e) { console.error(e); }
+            } else {
+                teamMembers.push({ id: 't_' + Date.now(), ...newMember });
+                localStorage.setItem('timeline_team', JSON.stringify(teamMembers));
+                renderAll();
+            }
             renderTeamList();
-            populateAssigneeDropdown();
-            updateStats();
-        }
+        };
 
-        function deleteTeamMember(id) {
+        window.deleteTeamMember = function(id, name) {
             if (teamMembers.length <= 1) {
-                alert('Minimal harus ada satu anggota tim.');
+                showCustomModal('Perhatian', 'Minimal harus ada satu anggota tim.', false, null, 'fa-circle-exclamation', 'bg-blue-100 text-blue-600');
                 return;
             }
 
-            const member = teamMembers.find(m => m.id === id);
-            if (member) {
-                teamMembers = teamMembers.filter(m => m.id !== id);
-                saveToStorage();
+            showCustomModal('Hapus Anggota', `Apakah Anda yakin ingin menghapus ${name}?`, true, async () => {
+                if (db) {
+                    try {
+                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'team', id));
+                    } catch(e) { console.error(e); }
+                } else {
+                    teamMembers = teamMembers.filter(m => m.id !== id);
+                    localStorage.setItem('timeline_team', JSON.stringify(teamMembers));
+                    renderAll();
+                }
                 renderTeamList();
-                populateAssigneeDropdown();
-                updateStats();
-                renderTimeline();
-            }
-        }
+            }, 'fa-trash-can', 'bg-rose-100 text-rose-600');
+        };
         
         function getDurationDays(startStr, endStr) {
             const start = new Date(startStr);
@@ -635,7 +777,7 @@
             }
         }
 
-        function openTaskModal(taskId = null) {
+        window.openTaskModal = function(taskId = null) {
             const title = document.getElementById('modalTitle');
             form?.reset();
             
@@ -659,13 +801,13 @@
             }
             
             modal?.classList.remove('hidden');
-        }
+        };
 
-        function closeTaskModal() {
+        window.closeTaskModal = function() {
             modal?.classList.add('hidden');
-        }
+        };
 
-        function saveTask() {
+        window.saveTask = async function() {
             if (form && !form.checkValidity()) {
                 form.reportValidity();
                 return;
@@ -679,24 +821,39 @@
             const isMilestone = document.getElementById('taskMilestone')?.checked;
 
             if (id) {
-                const index = tasks.findIndex(t => t.id === id);
-                if (index !== -1) {
-                    const color = tasks[index].color;
-                    tasks[index] = { id, name, start, end, assignee, isMilestone, color };
+                const existing = tasks.find(t => t.id === id);
+                const color = existing ? existing.color : colors[tasks.length % colors.length];
+                const taskData = { name, start, end, assignee, isMilestone, color };
+                
+                if (db) {
+                    try {
+                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'tasks', id), taskData);
+                    } catch(e) { console.error(e); }
+                } else {
+                    const idx = tasks.findIndex(t => t.id === id);
+                    if (idx !== -1) tasks[idx] = { id, ...taskData };
+                    localStorage.setItem('timeline_tasks', JSON.stringify(tasks));
+                    renderAll();
                 }
             } else {
-                const newId = Date.now().toString();
                 const color = colors[tasks.length % colors.length];
-                tasks.push({ id: newId, name, start, end, assignee, isMilestone, color });
+                const newTask = { name, start, end, assignee, isMilestone, color };
+                
+                if (db) {
+                    try {
+                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'tasks'), newTask);
+                    } catch(e) { console.error(e); }
+                } else {
+                    tasks.push({ id: Date.now().toString(), ...newTask });
+                    localStorage.setItem('timeline_tasks', JSON.stringify(tasks));
+                    renderAll();
+                }
             }
 
-            saveToStorage();
             closeTaskModal();
-            renderTimeline();
-            updateStats();
-        }
+        };
 
-        function openDetailModal(taskId) {
+        window.openDetailModal = function(taskId) {
             const task = tasks.find(t => t.id === taskId);
             if (!task) return;
 
@@ -734,22 +891,27 @@
             
             if (btnDelete) {
                 btnDelete.onclick = () => {
-                    if (confirm(`Apakah Anda yakin ingin menghapus tugas "${task.name}"?`)) {
-                        tasks = tasks.filter(t => t.id !== task.id);
-                        saveToStorage();
+                    showCustomModal('Hapus Tugas', `Apakah Anda yakin ingin menghapus tugas "${task.name}"?`, true, async () => {
+                        if (db) {
+                            try {
+                                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'tasks', task.id));
+                            } catch(e) { console.error(e); }
+                        } else {
+                            tasks = tasks.filter(t => t.id !== task.id);
+                            localStorage.setItem('timeline_tasks', JSON.stringify(tasks));
+                            renderAll();
+                        }
                         closeDetailModal();
-                        renderTimeline();
-                        updateStats();
-                    }
+                    }, 'fa-trash-can', 'bg-rose-100 text-rose-600');
                 };
             }
 
             detailModal?.classList.remove('hidden');
-        }
+        };
 
-        function closeDetailModal() {
+        window.closeDetailModal = function() {
             detailModal?.classList.add('hidden');
-        }
+        };
         
         form?.addEventListener('submit', (e) => {
             e.preventDefault();
