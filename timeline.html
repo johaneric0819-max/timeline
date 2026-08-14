@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline Kerja Profesional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                        },
+                        secondary: '#64748b',
+                        milestone: '#f59e0b',
+                        background: '#f8fafc',
+                        surface: '#ffffff',
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.02)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f8fafc;
+            color: #334155;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .timeline-scroll::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        .timeline-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+            border-radius: 4px;
+        }
+        .timeline-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        .timeline-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="font-sans h-screen flex flex-col selection:bg-primary-100 selection:text-primary-700">
+
+    <header class="glass sticky top-0 z-20 shadow-sm border-b border-slate-200/60">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary-500/30">
+                    <i class="fa-solid fa-timeline text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-800 tracking-tight">Timeline Kerja</h1>
+                    <p class="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Manajemen Proyek Modern</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="openTeamModal()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 shadow-soft hover:shadow">
+                    <i class="fa-solid fa-users text-xs"></i> Kelola Tim
+                </button>
+                <button onclick="openTaskModal()" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 shadow-soft hover:shadow-lg hover:-translate-y-0.5">
+                    <i class="fa-solid fa-plus text-xs"></i> Tugas Baru
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 overflow-hidden flex flex-col max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 gap-6">
+        
+        <!-- Dashboard Info Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div class="bg-surface p-5 rounded-2xl shadow-soft border border-slate-100/50 flex items-center gap-5 transition-transform hover:-translate-y-1 duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100/50 text-blue-600 flex items-center justify-center text-2xl shadow-inner-soft border border-blue-100">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-slate-500 font-medium mb-0.5">Total Tugas</p>
+                    <p class="text-3xl font-extrabold text-slate-800 tracking-tight" id="stat-total">0</p>
+                </div>
+            </div>
+            <div class="bg-surface p-5 rounded-2xl shadow-soft border border-slate-100/50 flex items-center gap-5 transition-transform hover:-translate-y-1 duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-50 to-amber-100/50 text-amber-600 flex items-center justify-center text-2xl shadow-inner-soft border border-amber-100">
+                    <i class="fa-solid fa-flag-checkered"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-slate-500 font-medium mb-0.5">Pencapaian Krusial</p>
+                    <p class="text-3xl font-extrabold text-slate-800 tracking-tight" id="stat-milestones">0</p>
+                </div>
+            </div>
+            <div class="bg-surface p-5 rounded-2xl shadow-soft border border-slate-100/50 flex items-center gap-5 transition-transform hover:-translate-y-1 duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-50 to-primary-100/50 text-primary-600 flex items-center justify-center text-2xl shadow-inner-soft border border-primary-100">
+                    <i class="fa-solid fa-user-astronaut"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-slate-500 font-medium mb-0.5">Anggota Tim</p>
+                    <p class="text-3xl font-extrabold text-slate-800 tracking-tight" id="stat-assignees">0</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-surface flex-1 rounded-2xl shadow-soft border border-slate-200/60 overflow-hidden flex flex-col">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-white/50 backdrop-blur-sm">
+                <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2.5">
+                    <span class="w-2 h-6 rounded-full bg-primary-500 inline-block"></span>
+                    Alur Kerja Visual
+                </h2>
+                <div class="flex gap-2" id="month-selectors"></div>
+            </div>
+            
+            <div class="flex-1 overflow-auto timeline-scroll relative bg-slate-50/30" id="timeline-container">
+                <div class="min-w-[900px] h-full" id="timeline-grid">
+                    <div class="flex border-b border-slate-200 sticky top-0 z-10 glass" id="timeline-dates">
+                        <div class="w-72 shrink-0 border-r border-slate-200 p-4 font-semibold text-sm text-slate-600 uppercase tracking-wider bg-white/80 backdrop-blur-md">
+                            Rincian Pekerjaan
+                        </div>
+                        <div class="flex flex-1" id="days-header"></div>
+                    </div>
+                    
+                    <div class="p-12 text-center text-slate-400 flex flex-col items-center justify-center h-64 hidden" id="empty-state">
+                        <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-clipboard-list text-3xl text-slate-300"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-slate-600 mb-1">Ruang Kerja Kosong</h3>
+                        <p class="text-sm">Klik tombol "Tugas Baru" di kanan atas untuk mulai menyusun rencana.</p>
+                    </div>
+
+                    <div id="timeline-rows" class="pb-16 pt-2"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Task Modal -->
+    <div id="taskModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onclick="closeTaskModal()"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+            <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-lg pointer-events-auto transform transition-all flex flex-col max-h-[90vh] border border-slate-100">
+                <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-slate-800" id="modalTitle">Tambah Tugas Baru</h3>
+                    <button onclick="closeTaskModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <div class="px-6 py-5 overflow-y-auto flex-1 custom-scrollbar">
+                    <form id="taskForm" class="space-y-5">
+                        <input type="hidden" id="taskId">
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Tugas <span class="text-rose-500">*</span></label>
+                            <input type="text" id="taskName" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all" placeholder="Misal: Desain Prototipe UI...">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Tanggal Mulai <span class="text-rose-500">*</span></label>
+                                <input type="date" id="taskStart" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Tenggat Waktu <span class="text-rose-500">*</span></label>
+                                <input type="date" id="taskEnd" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Penanggung Jawab <span class="text-rose-500">*</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-user-circle"></i>
+                                </div>
+                                <select id="taskAssignee" required class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all appearance-none cursor-pointer"></select>
+                                <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-2">
+                            <label class="relative flex items-start cursor-pointer group">
+                                <div class="flex items-center h-6">
+                                    <input type="checkbox" id="taskMilestone" class="w-5 h-5 text-amber-500 bg-slate-50 border-slate-300 rounded focus:ring-amber-500/30 focus:ring-2 transition-all cursor-pointer">
+                                </div>
+                                <div class="ml-3 text-sm">
+                                    <span class="font-semibold text-slate-700 block group-hover:text-amber-600 transition-colors">Tandai sebagai Pencapaian Penting (Milestone)</span>
+                                    <span class="text-slate-500 text-xs">Gunakan untuk menandai titik krusial dalam proyek.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/50 rounded-b-2xl">
+                    <button onclick="closeTaskModal()" class="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-colors">Batal</button>
+                    <button onclick="saveTask()" class="px-5 py-2.5 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-slate-800 shadow-md shadow-slate-900/20 transition-all hover:-translate-y-0.5">Simpan Tugas</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Detail Modal -->
+    <div id="detailModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onclick="closeDetailModal()"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+            <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-md pointer-events-auto flex flex-col border border-slate-100 overflow-hidden">
+                <div class="px-6 py-5 bg-gradient-to-br from-slate-50 to-white border-b border-slate-100 flex justify-between items-start relative overflow-hidden">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-primary-50 rounded-full blur-2xl opacity-70"></div>
+                    <div class="pr-8 relative z-10">
+                        <div id="detailMilestoneBadge" class="hidden mb-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-amber-100/80 text-amber-700 border border-amber-200/50 backdrop-blur-sm">
+                            <i class="fa-solid fa-flag-checkered"></i> Pencapaian Penting
+                        </div>
+                        <h3 class="text-2xl font-extrabold text-slate-800 leading-tight" id="detailName">Nama Tugas</h3>
+                    </div>
+                    <button onclick="closeDetailModal()" class="w-8 h-8 rounded-full bg-slate-100/80 text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors flex items-center justify-center relative z-10">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="px-6 py-6 space-y-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0 border border-blue-100/50">
+                            <i class="fa-regular fa-calendar-alt text-lg"></i>
+                        </div>
+                        <div class="pt-1">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Jadwal Pelaksanaan</p>
+                            <p class="text-base font-semibold text-slate-800" id="detailDates">1 Jan - 5 Jan</p>
+                            <div class="inline-flex items-center gap-1.5 mt-1.5 px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600" id="detailDuration">
+                                <i class="fa-regular fa-clock"></i> 5 hari
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full h-px bg-slate-100"></div>
+                    
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center shrink-0 border border-purple-100/50">
+                            <i class="fa-solid fa-user-astronaut text-lg"></i>
+                        </div>
+                        <div class="pt-1">
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Penanggung Jawab</p>
+                            <div class="flex items-center gap-3 mt-1.5">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 text-slate-600 flex items-center justify-center text-sm font-bold shadow-inner" id="detailAvatar">A</div>
+                                <p class="text-base font-semibold text-slate-800" id="detailAssignee">Nama Lengkap</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-6 py-5 border-t border-slate-100 flex justify-between gap-4 bg-slate-50/80 backdrop-blur-sm">
+                    <button id="btnDeleteTask" class="flex-1 px-4 py-2.5 text-sm font-semibold text-rose-600 bg-white border border-rose-200 rounded-xl hover:bg-rose-50 transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-regular fa-trash-can"></i> Hapus
+                    </button>
+                    <button id="btnEditTask" class="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-slate-800 border border-transparent rounded-xl hover:bg-slate-900 transition-all shadow-md shadow-slate-900/10 flex items-center justify-center gap-2">
+                        <i class="fa-regular fa-pen-to-square"></i> Edit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Management & Edit Modal -->
+    <div id="teamModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onclick="closeTeamModal()"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+            <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-md pointer-events-auto flex flex-col border border-slate-100 overflow-hidden">
+                <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-white/50 backdrop-blur-sm">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-users text-primary-500"></i> Kelola & Edit Tim
+                    </h3>
+                    <button onclick="closeTeamModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <div class="px-6 py-5 space-y-5 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                    <form id="teamForm" onsubmit="addTeamMember(event)" class="flex gap-2">
+                        <input type="text" id="newMemberName" required placeholder="Nama anggota baru..." class="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
+                        <button type="submit" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md shadow-primary-500/20 flex items-center gap-1.5 shrink-0">
+                            <i class="fa-solid fa-user-plus text-xs"></i> Tambah
+                        </button>
+                    </form>
+
+                    <div class="space-y-2.5" id="teamListContainer"></div>
+                </div>
+
+                <div class="px-6 py-4 border-t border-slate-100 flex justify-end bg-slate-50/50">
+                    <button onclick="closeTeamModal()" class="px-5 py-2.5 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-slate-800 transition-all shadow-md shadow-slate-900/10">Selesai</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let teamMembers = [
+            { id: 't1', name: 'Tim Riset', role: 'Divisi Riset' },
+            { id: 't2', name: 'Manajer Proyek', role: 'Manajemen' },
+            { id: 't3', name: 'Direksi', role: 'Eksekutif' },
+            { id: 't4', name: 'Tim Desain', role: 'UI/UX' },
+            { id: 't5', name: 'Tim Dev', role: 'Engineering' }
+        ];
+
+        let tasks = [
+            { id: '1', name: 'Riset Pasar & Analisis Kompetitor', start: '2026-08-01', end: '2026-08-07', assignee: 'Tim Riset', isMilestone: false, color: 'bg-indigo-500' },
+            { id: '2', name: 'Penyusunan Proposal Proyek', start: '2026-08-08', end: '2026-08-12', assignee: 'Manajer Proyek', isMilestone: false, color: 'bg-blue-500' },
+            { id: '3', name: 'Persetujuan Proposal (Kick-off)', start: '2026-08-13', end: '2026-08-13', assignee: 'Direksi', isMilestone: true, color: 'bg-amber-500' },
+            { id: '4', name: 'Desain Prototipe UI/UX Utama', start: '2026-08-14', end: '2026-08-25', assignee: 'Tim Desain', isMilestone: false, color: 'bg-primary-500' },
+            { id: '5', name: 'Pengembangan Frontend (Sprint 1)', start: '2026-08-20', end: '2026-09-10', assignee: 'Tim Dev', isMilestone: false, color: 'bg-violet-500' }
+        ];
+
+        const colors = [
+            'bg-blue-500', 'bg-indigo-500', 'bg-violet-500', 
+            'bg-purple-500', 'bg-fuchsia-500', 'bg-pink-500', 
+            'bg-rose-500', 'bg-emerald-500', 'bg-teal-500', 'bg-cyan-500'
+        ];
+
+        const modal = document.getElementById('taskModal');
+        const detailModal = document.getElementById('detailModal');
+        const teamModal = document.getElementById('teamModal');
+        const form = document.getElementById('taskForm');
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTimeline();
+            updateStats();
+            setupFormValidation();
+            populateAssigneeDropdown();
+        });
+
+        function populateAssigneeDropdown() {
+            const select = document.getElementById('taskAssignee');
+            if (!select) return;
+            select.innerHTML = '';
+            teamMembers.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member.name;
+                option.textContent = member.name;
+                select.appendChild(option);
+            });
+        }
+
+        function openTeamModal() {
+            renderTeamList();
+            teamModal?.classList.remove('hidden');
+        }
+
+        function closeTeamModal() {
+            teamModal?.classList.add('hidden');
+        }
+
+        function renderTeamList() {
+            const container = document.getElementById('teamListContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (teamMembers.length === 0) {
+                container.innerHTML = `<p class="text-sm text-slate-400 text-center py-4">Belum ada anggota tim.</p>`;
+                return;
+            }
+
+            teamMembers.forEach(member => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200/60 transition-all hover:bg-slate-100/60';
+                
+                const initials = member.name.charAt(0).toUpperCase();
+                
+                item.innerHTML = `
+                    <div class="flex items-center gap-3 flex-1 mr-3">
+                        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
+                            ${initials}
+                        </div>
+                        <div class="flex-1">
+                            <input type="text" value="${member.name}" onchange="updateTeamMemberName('${member.id}', this.value)" class="w-full bg-transparent font-semibold text-sm text-slate-800 border-b border-transparent hover:border-slate-300 focus:border-primary-500 focus:outline-none px-1 py-0.5 transition-colors" title="Klik untuk edit nama">
+                            <p class="text-[11px] text-slate-400 px-1">Tekan enter/pindah untuk menyimpan</p>
+                        </div>
+                    </div>
+                    <button onclick="deleteTeamMember('${member.id}')" class="w-8 h-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors flex items-center justify-center shrink-0" title="Hapus Anggota">
+                        <i class="fa-regular fa-trash-can text-sm"></i>
+                    </button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function updateTeamMemberName(id, newName) {
+            newName = newName.trim();
+            if (!newName) return;
+            const member = teamMembers.find(m => m.id === id);
+            if (member) {
+                const oldName = member.name;
+                member.name = newName;
+                tasks.forEach(t => {
+                    if (t.assignee === oldName) {
+                        t.assignee = newName;
+                    }
+                });
+                populateAssigneeDropdown();
+                renderTimeline();
+                updateStats();
+            }
+        }
+
+        function addTeamMember(e) {
+            e.preventDefault();
+            const input = document.getElementById('newMemberName');
+            const name = input?.value.trim();
+            
+            if (!name) return;
+
+            if (teamMembers.some(m => m.name.toLowerCase() === name.toLowerCase())) {
+                alert('Anggota dengan nama tersebut sudah ada.');
+                return;
+            }
+
+            const newId = 't_' + Date.now();
+            teamMembers.push({ id: newId, name: name, role: 'Anggota' });
+            if (input) input.value = '';
+            
+            renderTeamList();
+            populateAssigneeDropdown();
+            updateStats();
+        }
+
+        function deleteTeamMember(id) {
+            if (teamMembers.length <= 1) {
+                alert('Minimal harus ada satu anggota tim.');
+                return;
+            }
+
+            const member = teamMembers.find(m => m.id === id);
+            if (member) {
+                teamMembers = teamMembers.filter(m => m.id !== id);
+                renderTeamList();
+                populateAssigneeDropdown();
+                updateStats();
+                renderTimeline();
+            }
+        }
+        
+        function getDurationDays(startStr, endStr) {
+            const start = new Date(startStr);
+            const end = new Date(endStr);
+            const diffTime = Math.abs(end - start);
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        }
+
+        function formatDateIndo(dateStr) {
+            const date = new Date(dateStr);
+            const options = { day: 'numeric', month: 'short', year: 'numeric' };
+            return date.toLocaleDateString('id-ID', options);
+        }
+
+        function updateStats() {
+            const statTotal = document.getElementById('stat-total');
+            const statMilestones = document.getElementById('stat-milestones');
+            const statAssignees = document.getElementById('stat-assignees');
+
+            if (statTotal) statTotal.textContent = tasks.length;
+            if (statMilestones) statMilestones.textContent = tasks.filter(t => t.isMilestone).length;
+            if (statAssignees) statAssignees.textContent = teamMembers.length;
+        }
+
+        function renderTimeline() {
+            const daysHeader = document.getElementById('days-header');
+            const timelineRows = document.getElementById('timeline-rows');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (daysHeader) daysHeader.innerHTML = '';
+            if (timelineRows) timelineRows.innerHTML = '';
+            
+            if (tasks.length === 0) {
+                emptyState?.classList.remove('hidden');
+                emptyState?.classList.add('flex');
+                return;
+            } else {
+                emptyState?.classList.add('hidden');
+                emptyState?.classList.remove('flex');
+            }
+
+            const startDates = tasks.map(t => new Date(t.start));
+            const endDates = tasks.map(t => new Date(t.end));
+            
+            let minDate = new Date(Math.min(...startDates));
+            let maxDate = new Date(Math.max(...endDates));
+            
+            minDate.setDate(minDate.getDate() - 3);
+            maxDate.setDate(maxDate.getDate() + 7);
+
+            const totalDaysToRender = getDurationDays(minDate.toISOString().split('T')[0], maxDate.toISOString().split('T')[0]);
+            const dayWidth = 48; 
+            
+            let currentDate = new Date(minDate);
+            
+            for (let i = 0; i < totalDaysToRender; i++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'shrink-0 border-r border-slate-200/60 flex flex-col items-center justify-center text-xs relative bg-white/50 backdrop-blur-sm transition-colors hover:bg-slate-50';
+                dayDiv.style.width = `${dayWidth}px`;
+                
+                const d = currentDate.getDate();
+                const m = currentDate.getMonth();
+                const dayOfWeek = currentDate.getDay();
+                
+                if (dayOfWeek === 0 || dayOfWeek === 6) {
+                    dayDiv.classList.add('bg-slate-50/80');
+                    dayDiv.classList.remove('bg-white/50');
+                }
+                
+                if (d === 1 || i === 0) {
+                    const monthName = currentDate.toLocaleDateString('id-ID', { month: 'short' });
+                    const monthSpan = document.createElement('span');
+                    monthSpan.className = 'absolute top-1.5 left-2 text-[10px] font-bold text-slate-400 whitespace-nowrap tracking-wider uppercase';
+                    monthSpan.textContent = monthName;
+                    dayDiv.appendChild(monthSpan);
+                }
+
+                const dateSpan = document.createElement('span');
+                const isToday = d === new Date().getDate() && m === new Date().getMonth() && currentDate.getFullYear() === new Date().getFullYear();
+                
+                dateSpan.className = `mt-4 font-semibold text-sm ${isToday ? 'bg-slate-900 text-white rounded-lg w-7 h-7 flex items-center justify-center shadow-md' : 'text-slate-600'}`;
+                dateSpan.textContent = d;
+                
+                dayDiv.appendChild(dateSpan);
+                daysHeader?.appendChild(dayDiv);
+                
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            const sortedTasks = [...tasks].sort((a, b) => new Date(a.start) - new Date(b.start));
+
+            sortedTasks.forEach(task => {
+                const taskStart = new Date(task.start);
+                const taskEnd = new Date(task.end);
+                
+                const offsetDays = getDurationDays(minDate.toISOString().split('T')[0], taskStart.toISOString().split('T')[0]) - 1;
+                const durationDays = getDurationDays(taskStart.toISOString().split('T')[0], taskEnd.toISOString().split('T')[0]);
+                
+                const leftPos = offsetDays * dayWidth;
+                const barWidth = durationDays * dayWidth;
+
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'flex border-b border-slate-100 hover:bg-slate-50/50 transition-colors group relative min-h-[64px] items-center';
+                
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'w-72 shrink-0 border-r border-slate-200/60 px-4 py-3 bg-white/80 backdrop-blur-sm sticky left-0 z-10 flex flex-col justify-center cursor-pointer';
+                infoDiv.onclick = () => openDetailModal(task.id);
+                
+                const titleFlex = document.createElement('div');
+                titleFlex.className = 'flex items-start gap-2.5';
+                
+                if (task.isMilestone) {
+                    titleFlex.innerHTML += `<div class="mt-0.5 w-4 h-4 rounded bg-amber-100 flex items-center justify-center shrink-0 border border-amber-200"><i class="fa-solid fa-flag-checkered text-amber-600 text-[8px]"></i></div>`;
+                } else {
+                    titleFlex.innerHTML += `<div class="mt-1 w-2 h-2 rounded-full ${task.color} shrink-0 opacity-80"></div>`;
+                }
+                
+                titleFlex.innerHTML += `<span class="text-sm font-semibold text-slate-700 leading-snug group-hover:text-primary-600 transition-colors break-words line-clamp-2">${task.name}</span>`;
+                infoDiv.appendChild(titleFlex);
+                
+                const metaDiv = document.createElement('div');
+                metaDiv.className = 'text-xs text-slate-500 mt-1.5 ml-6 truncate flex items-center gap-1.5 font-medium';
+                metaDiv.innerHTML = `<div class="w-4 h-4 rounded-full bg-slate-200 flex items-center justify-center text-[8px] text-slate-600 font-bold">${task.assignee.charAt(0).toUpperCase()}</div> <span class="truncate">${task.assignee}</span>`;
+                infoDiv.appendChild(metaDiv);
+                
+                rowDiv.appendChild(infoDiv);
+
+                const timelineArea = document.createElement('div');
+                timelineArea.className = 'flex-1 relative h-full flex items-center';
+                
+                let bgGrid = '';
+                for(let i=0; i<totalDaysToRender; i++) {
+                     bgGrid += `<div class="absolute top-0 bottom-0 border-r border-slate-200/40 pointer-events-none transition-colors group-hover:border-slate-300/40" style="left: ${i * dayWidth}px; width: ${dayWidth}px;"></div>`;
+                }
+                timelineArea.innerHTML = bgGrid;
+
+                const bar = document.createElement('div');
+                bar.className = `absolute rounded-lg shadow-sm hover:shadow-md flex items-center px-3 cursor-pointer transition-all hover:scale-[1.01] z-20 overflow-hidden group/bar ${task.isMilestone ? 'bg-gradient-to-r from-amber-500 to-amber-400 h-9 border border-amber-300' : `${task.color} bg-opacity-90 hover:bg-opacity-100 h-8`}`;
+                
+                bar.style.left = `${leftPos + 6}px`;
+                bar.style.width = `${barWidth - 12}px`;
+                bar.onclick = () => openDetailModal(task.id);
+
+                if (task.isMilestone) {
+                     bar.innerHTML = `<span class="text-white text-xs font-bold truncate w-full flex items-center gap-1.5"><i class="fa-solid fa-flag-checkered text-[10px] opacity-80"></i> Milestone</span>`;
+                } else {
+                    if (barWidth > 80) {
+                        bar.innerHTML = `<span class="text-white/90 text-xs font-semibold truncate tracking-wide">${durationDays} Hari</span>`;
+                    }
+                }
+
+                bar.title = `${task.name}\n${formatDateIndo(task.start)} - ${formatDateIndo(task.end)}\nDurasi: ${durationDays} hari\nPJ: ${task.assignee}`;
+
+                timelineArea.appendChild(bar);
+                rowDiv.appendChild(timelineArea);
+                
+                timelineRows?.appendChild(rowDiv);
+            });
+        }
+        
+        function setupFormValidation() {
+            const startInput = document.getElementById('taskStart');
+            const endInput = document.getElementById('taskEnd');
+            
+            if (startInput && endInput) {
+                startInput.addEventListener('change', () => {
+                    endInput.min = startInput.value;
+                    if(endInput.value && endInput.value < startInput.value) {
+                        endInput.value = startInput.value;
+                    }
+                });
+            }
+        }
+
+        function openTaskModal(taskId = null) {
+            const title = document.getElementById('modalTitle');
+            form?.reset();
+            
+            if (taskId) {
+                if (title) title.textContent = 'Edit Tugas';
+                const task = tasks.find(t => t.id === taskId);
+                if (task) {
+                    document.getElementById('taskId').value = task.id;
+                    document.getElementById('taskName').value = task.name;
+                    document.getElementById('taskStart').value = task.start;
+                    document.getElementById('taskEnd').value = task.end;
+                    document.getElementById('taskAssignee').value = task.assignee;
+                    document.getElementById('taskMilestone').checked = task.isMilestone;
+                }
+            } else {
+                if (title) title.textContent = 'Tambah Tugas Baru';
+                document.getElementById('taskId').value = '';
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('taskStart').value = today;
+                document.getElementById('taskEnd').value = today;
+            }
+            
+            modal?.classList.remove('hidden');
+        }
+
+        function closeTaskModal() {
+            modal?.classList.add('hidden');
+        }
+
+        function saveTask() {
+            if (form && !form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const id = document.getElementById('taskId')?.value;
+            const name = document.getElementById('taskName')?.value;
+            const start = document.getElementById('taskStart')?.value;
+            const end = document.getElementById('taskEnd')?.value;
+            const assignee = document.getElementById('taskAssignee')?.value;
+            const isMilestone = document.getElementById('taskMilestone')?.checked;
+
+            if (id) {
+                const index = tasks.findIndex(t => t.id === id);
+                if (index !== -1) {
+                    const color = tasks[index].color;
+                    tasks[index] = { id, name, start, end, assignee, isMilestone, color };
+                }
+            } else {
+                const newId = Date.now().toString();
+                const color = colors[tasks.length % colors.length];
+                tasks.push({ id: newId, name, start, end, assignee, isMilestone, color });
+            }
+
+            closeTaskModal();
+            renderTimeline();
+            updateStats();
+        }
+
+        function openDetailModal(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            const detailName = document.getElementById('detailName');
+            const detailDates = document.getElementById('detailDates');
+            const detailDuration = document.getElementById('detailDuration');
+            const detailAssignee = document.getElementById('detailAssignee');
+            const detailAvatar = document.getElementById('detailAvatar');
+            const milestoneBadge = document.getElementById('detailMilestoneBadge');
+
+            if (detailName) detailName.textContent = task.name;
+            if (detailDates) detailDates.textContent = `${formatDateIndo(task.start)} - ${formatDateIndo(task.end)}`;
+            
+            const duration = getDurationDays(task.start, task.end);
+            if (detailDuration) detailDuration.innerHTML = `<i class="fa-regular fa-clock"></i> ${duration} hari kerja`;
+            
+            if (detailAssignee) detailAssignee.textContent = task.assignee;
+            if (detailAvatar) detailAvatar.textContent = task.assignee.charAt(0).toUpperCase();
+            
+            if (task.isMilestone) {
+                milestoneBadge?.classList.remove('hidden');
+            } else {
+                milestoneBadge?.classList.add('hidden');
+            }
+
+            const btnEdit = document.getElementById('btnEditTask');
+            const btnDelete = document.getElementById('btnDeleteTask');
+
+            if (btnEdit) {
+                btnEdit.onclick = () => {
+                    closeDetailModal();
+                    setTimeout(() => openTaskModal(task.id), 300);
+                };
+            }
+            
+            if (btnDelete) {
+                btnDelete.onclick = () => {
+                    if (confirm(`Apakah Anda yakin ingin menghapus tugas "${task.name}"?`)) {
+                        tasks = tasks.filter(t => t.id !== task.id);
+                        closeDetailModal();
+                        renderTimeline();
+                        updateStats();
+                    }
+                };
+            }
+
+            detailModal?.classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            detailModal?.classList.add('hidden');
+        }
+        
+        form?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            saveTask();
+        });
+    </script>
+</body>
+</html>
