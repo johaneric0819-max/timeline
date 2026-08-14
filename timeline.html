@@ -154,7 +154,6 @@
         </div>
     </main>
 
-    <!-- Add/Edit Task Modal -->
     <div id="taskModal" class="fixed inset-0 z-50 hidden">
         <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onclick="closeTaskModal()"></div>
         <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
@@ -221,7 +220,6 @@
         </div>
     </div>
 
-    <!-- Task Detail Modal -->
     <div id="detailModal" class="fixed inset-0 z-50 hidden">
         <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onclick="closeDetailModal()"></div>
         <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
@@ -279,7 +277,6 @@
         </div>
     </div>
 
-    <!-- Team Management & Edit Modal -->
     <div id="teamModal" class="fixed inset-0 z-50 hidden">
         <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onclick="closeTeamModal()"></div>
         <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
@@ -312,7 +309,8 @@
     </div>
 
     <script>
-        let teamMembers = [
+        // Load stored data or fall back to default arrays
+        let teamMembers = JSON.parse(localStorage.getItem('timeline_team')) || [
             { id: 't1', name: 'Tim Riset', role: 'Divisi Riset' },
             { id: 't2', name: 'Manajer Proyek', role: 'Manajemen' },
             { id: 't3', name: 'Direksi', role: 'Eksekutif' },
@@ -320,7 +318,7 @@
             { id: 't5', name: 'Tim Dev', role: 'Engineering' }
         ];
 
-        let tasks = [
+        let tasks = JSON.parse(localStorage.getItem('timeline_tasks')) || [
             { id: '1', name: 'Riset Pasar & Analisis Kompetitor', start: '2026-08-01', end: '2026-08-07', assignee: 'Tim Riset', isMilestone: false, color: 'bg-indigo-500' },
             { id: '2', name: 'Penyusunan Proposal Proyek', start: '2026-08-08', end: '2026-08-12', assignee: 'Manajer Proyek', isMilestone: false, color: 'bg-blue-500' },
             { id: '3', name: 'Persetujuan Proposal (Kick-off)', start: '2026-08-13', end: '2026-08-13', assignee: 'Direksi', isMilestone: true, color: 'bg-amber-500' },
@@ -339,6 +337,11 @@
         const teamModal = document.getElementById('teamModal');
         const form = document.getElementById('taskForm');
         
+        function saveToStorage() {
+            localStorage.setItem('timeline_tasks', JSON.stringify(tasks));
+            localStorage.setItem('timeline_team', JSON.stringify(teamMembers));
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             renderTimeline();
             updateStats();
@@ -413,6 +416,7 @@
                         t.assignee = newName;
                     }
                 });
+                saveToStorage();
                 populateAssigneeDropdown();
                 renderTimeline();
                 updateStats();
@@ -435,6 +439,7 @@
             teamMembers.push({ id: newId, name: name, role: 'Anggota' });
             if (input) input.value = '';
             
+            saveToStorage();
             renderTeamList();
             populateAssigneeDropdown();
             updateStats();
@@ -449,6 +454,7 @@
             const member = teamMembers.find(m => m.id === id);
             if (member) {
                 teamMembers = teamMembers.filter(m => m.id !== id);
+                saveToStorage();
                 renderTeamList();
                 populateAssigneeDropdown();
                 updateStats();
@@ -684,6 +690,7 @@
                 tasks.push({ id: newId, name, start, end, assignee, isMilestone, color });
             }
 
+            saveToStorage();
             closeTaskModal();
             renderTimeline();
             updateStats();
@@ -729,6 +736,7 @@
                 btnDelete.onclick = () => {
                     if (confirm(`Apakah Anda yakin ingin menghapus tugas "${task.name}"?`)) {
                         tasks = tasks.filter(t => t.id !== task.id);
+                        saveToStorage();
                         closeDetailModal();
                         renderTimeline();
                         updateStats();
